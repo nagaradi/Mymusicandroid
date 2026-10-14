@@ -3,7 +3,10 @@ package com.example.mymusic
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.graphics.Color
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -13,30 +16,26 @@ class YouTubeSearch : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(16, 24, 16, 16)
-            setBackgroundColor(Color.rgb(15, 15, 18))
-        }
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(16, 24, 16, 16)
+        layout.setBackgroundColor(Color.rgb(15, 15, 18))
 
-        val title = TextView(this).apply {
-            text = "My Music - YouTube"
-            textSize = 24f
-            setTextColor(Color.WHITE)
-        }
+        val title = TextView(this)
+        title.text = "My Music - YouTube"
+        title.textSize = 24f
+        title.setTextColor(Color.WHITE)
         layout.addView(title)
 
-        val search = EditText(this).apply {
-            hint = "गाने का नाम लिखें"
-            setSingleLine(true)
-            setTextColor(Color.WHITE)
-            setHintTextColor(Color.LTGRAY)
-        }
+        val search = EditText(this)
+        search.hint = "गाने का नाम लिखें"
+        search.setSingleLine(true)
+        search.setTextColor(Color.WHITE)
+        search.setHintTextColor(Color.LTGRAY)
         layout.addView(search)
 
-        val button = Button(this).apply {
-            text = "Search YouTube"
-        }
+        val button = Button(this)
+        button.text = "Search YouTube"
         layout.addView(button)
 
         val web = WebView(this)
@@ -54,6 +53,7 @@ class YouTubeSearch : Activity() {
 
         button.setOnClickListener {
             val query = search.text.toString().trim()
+
             if (query.isNotEmpty()) {
                 val encoded = android.net.Uri.encode(query)
                 web.loadUrl(
