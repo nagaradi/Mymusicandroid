@@ -45,6 +45,11 @@ class MainActivity : ComponentActivity() {
 
         root.addView(text("My Music", 30f))
         root.addView(text("Dark • Background playback • Direct audio URLs", 13f))
+        root.addView(button("Search YouTube") {
+    startActivity(
+        android.content.Intent(this, YouTubeSearch::class.java)
+    )
+}, LinearLayout.LayoutParams(-1, -2))
         urlInput = EditText(this).apply {
             hint = "Paste a permitted direct audio URL (MP3/M4A)"
             setHintTextColor(0xFFAAAAAA.toInt())
