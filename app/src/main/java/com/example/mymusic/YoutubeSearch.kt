@@ -42,18 +42,15 @@ class YouTubeSearch : Activity() {
         web.settings.javaScriptEnabled = true
         web.webViewClient = WebViewClient()
 
-        layout.addView(
-            web,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
+        val webParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1f
         )
+        layout.addView(web, webParams)
 
         button.setOnClickListener {
             val query = search.text.toString().trim()
-
             if (query.isNotEmpty()) {
                 val encoded = android.net.Uri.encode(query)
                 web.loadUrl(
