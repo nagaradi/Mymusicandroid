@@ -31,13 +31,10 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
-        run: gradle 
-assembleDebug
+        run: gradle assembleDebug
         
       - name: Upload APK
-        uses: 
-actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: MyMusic-APK
-          path: app/build/
-outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/*.apk
