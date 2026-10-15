@@ -413,27 +413,19 @@ class MainActivity : ComponentActivity() {
             status.text = "Playback failed: ${e.message ?: "unknown error"}"
         }
     }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 101) {
-            if (grantResults.isNotEmpty() &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED
-            ) {
+    
+        private val permissionLauncher =
+        registerForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
                 loadSongs()
             } else {
                 status.text = "Music permission denied. Allow it in Settings."
             }
         }
-    }private val permissionLauncher =
-    registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            loadSongs()
-        } else {
-            status.text = "Music permission denied. Allow it in Settings."
-        }
-    }
-    override fun onDestroy() {
+
+        override fun onDestroy() {
         controllerFuture?.let { MediaController.releaseFuture(it) }
         controller = null
         super.onDestroy()
