@@ -6,10 +6,11 @@ import android.provider.MediaStore
 import android.graphics.Color
 import android.view.ViewGroup
 import android.widget.*
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import android.content.ComponentName
 import androidx.core.content.ContextCompat
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -36,13 +37,14 @@ class LocalMusic : Activity() {
 
         status = TextView(this)
         status.setTextColor(Color.WHITE)
-        status.text = "Loading songs..."
+        status.text = "Checking audio permission..."
         root.addView(status)
 
         val scroll = ScrollView(this)
         list = LinearLayout(this)
         list.orientation = LinearLayout.VERTICAL
         scroll.addView(list)
+
         root.addView(
             scroll,
             LinearLayout.LayoutParams(
@@ -54,11 +56,46 @@ class LocalMusic : Activity() {
 
         setContentView(root)
 
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission("android.permission.READ_MEDIA_AUDIO") !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf("android.permission.READ_MEDIA_AUDIO"),
+                100
+            )
+        } else {
+            startPlayer()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 100 &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
+        ) {
+            startPlayer()
+        } else {
+            status.text = "Allow audio permission to see phone songs."
+        }
+    }
+
+    private fun startPlayer() {
+        status.text = "Loading songs..."
+
         val token = SessionToken(
             this,
             ComponentName(this, PlaybackService::class.java)
         )
+
         controllerFuture = MediaController.Builder(this, token).buildAsync()
+
         controllerFuture?.addListener({
             try {
                 controller = controllerFuture?.get()
@@ -87,14 +124,20 @@ class LocalMusic : Activity() {
                 null,
                 "${MediaStore.Audio.Media.TITLE} ASC"
             )?.use { cursor ->
-                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-                val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                val idColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                val titleColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                val artistColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
 
                 while (cursor.moveToNext()) {
                     val id = cursor.getLong(idColumn)
-                    val songTitle = cursor.getString(titleColumn) ?: "Unknown song"
-                    val artist = cursor.getString(artistColumn) ?: "Unknown artist"
+                    val songTitle =
+                        cursor.getString(titleColumn) ?: "Unknown song"
+                    val artist =
+                        cursor.getString(artistColumn) ?: "Unknown artist"
+
                     val songUri = android.content.ContentUris.withAppendedId(
                         collection,
                         id
@@ -102,6 +145,7 @@ class LocalMusic : Activity() {
 
                     val button = Button(this)
                     button.text = "$songTitle\n$artist"
+
                     button.setOnClickListener {
                         val player = controller
                         if (player != null) {
@@ -113,14 +157,15 @@ class LocalMusic : Activity() {
                             status.text = "Player is starting. Try again."
                         }
                     }
+
                     list.addView(button)
                 }
             }
 
-            if (list.childCount == 0) {
-                status.text = "No songs found. Add MP3/M4A files to your phone."
+            status.text = if (list.childCount == 0) {
+                "No songs found. Add MP3/M4A files to your phone."
             } else {
-                status.text = "Tap a song to play it."
+                "Tap a song to play it."
             }
         } catch (_: Exception) {
             status.text = "Could not read songs from this phone."
