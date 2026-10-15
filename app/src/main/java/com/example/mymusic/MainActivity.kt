@@ -44,6 +44,14 @@ class MainActivity : ComponentActivity() {
         }
 
         root.addView(text("My Music", 30f))
+        root.addView(
+    button("Phone Songs") {
+        startActivity(
+            android.content.Intent(this, LocalMusic::class.java)
+        )
+    },
+    LinearLayout.LayoutParams(-1, -2)
+)
         root.addView(text("Dark • Background playback • Direct audio URLs", 13f))
         root.addView(button("Search YouTube") {
     startActivity(
