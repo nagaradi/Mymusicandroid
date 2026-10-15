@@ -247,7 +247,7 @@ class MainActivity : ComponentActivity() {
         ) {
             loadSongs()
         } else {
-            requestPermissions(arrayOf(audioPermission), 101)
+            permissionLauncher.launch(audioPermission)
         }
     }
 
@@ -256,7 +256,7 @@ class MainActivity : ComponentActivity() {
             != PackageManager.PERMISSION_GRANTED
         ) {
             status.text = "Allow music access to show your phone songs."
-            requestPermissions(arrayOf(audioPermission), 101)
+            permissionLauncher.launch(audioPermission)
             return
         }
 
@@ -413,12 +413,6 @@ class MainActivity : ComponentActivity() {
             status.text = "Playback failed: ${e.message ?: "unknown error"}"
         }
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 101) {
             if (grantResults.isNotEmpty() &&
@@ -429,8 +423,16 @@ class MainActivity : ComponentActivity() {
                 status.text = "Music permission denied. Allow it in Settings."
             }
         }
+    }private val permissionLauncher =
+    registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            loadSongs()
+        } else {
+            status.text = "Music permission denied. Allow it in Settings."
+        }
     }
-
     override fun onDestroy() {
         controllerFuture?.let { MediaController.releaseFuture(it) }
         controller = null
