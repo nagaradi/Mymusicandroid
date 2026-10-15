@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
         }
         scroll.addView(
             songList,
-            ScrollView.LayoutParams(-1, -2)
+            android.widget.FrameLayout.LayoutParams(-1, -2)
         )
         root.addView(
             scroll,
