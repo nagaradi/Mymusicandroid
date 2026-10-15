@@ -19,6 +19,8 @@
             </intent-filter>
 
         </activity>
+             android:name=".LocalMusic"
+             android:exported="false" />
 
         <activity
             android:name=".YouTubeSearch"
